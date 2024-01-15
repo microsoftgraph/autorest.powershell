@@ -31,7 +31,7 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
     {
         public string ModuleName { get; }
 
-        public string RootModuleName {get => @"${$project.rootModuleName}";}
+        public string RootModuleName { get => @"${$project.rootModuleName}"; }
         public string CmdletName { get; }
         public string CmdletVerb { get; }
         public string CmdletNoun { get; }
@@ -65,6 +65,7 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
             CmdletNoun = cmdletNameParts.Last();
             ProfileName = profileName;
             Variants = variants;
+            Console.WriteLine($"module: {moduleName} -- cmdlet: {cmdletName} -- profileName: {profileName}");
             ParameterGroups = Variants.ToParameterGroups().OrderBy(pg => pg.OrderCategory).ThenByDescending(pg => pg.IsMandatory).ToArray();
             var aliasDuplicates = ParameterGroups.SelectMany(pg => pg.Aliases)
                 //https://stackoverflow.com/a/18547390/294804
@@ -74,7 +75,7 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
                 throw new ParsingMetadataException($"The alias(es) [{String.Join(", ", aliasDuplicates)}] are defined on multiple parameters for cmdlet '{CmdletName}', which is not supported.");
             }
             ComplexInterfaceInfos = ParameterGroups.Where(pg => !pg.DontShow && pg.IsComplexInterface).OrderBy(pg => pg.ParameterName).Select(pg => pg.ComplexInterfaceInfo).ToArray();
-
+            Console.WriteLine("Last successful generated commandlet " + cmdletName);
             Aliases = Variants.SelectMany(v => v.Attributes).ToAliasNames().ToArray();
             OutputTypes = Variants.SelectMany(v => v.Info.OutputType).Where(ot => ot.Type != null).GroupBy(ot => ot.Type).Select(otg => otg.First()).ToArray();
             SupportsShouldProcess = Variants.Any(v => v.SupportsShouldProcess);
@@ -199,6 +200,7 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
             AllVariantNames = allVariantNames;
             HasAllVariants = VariantNames.Any(vn => vn == AllParameterSets) || !AllVariantNames.Except(VariantNames).Any();
             var types = Parameters.Select(p => p.ParameterType).Distinct().ToArray();
+            //Console.WriteLine($"ParameterName: {ParameterName} -- types: {types.Length}");
             if (types.Length > 1)
             {
                 throw new ParsingMetadataException($"The parameter '{ParameterName}' has multiple parameter types [{String.Join(", ", types.Select(t => t.Name))}] defined, which is not supported.");
@@ -318,7 +320,7 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
         public bool Required { get; }
         public bool ReadOnly { get; }
         public string Description { get; }
-        
+
         public ComplexInterfaceInfo[] NestedInfos { get; }
         public bool IsComplexInterface { get; }
 
@@ -335,7 +337,7 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
             var unwrappedType = Type.Unwrap();
             var hasBeenSeen = seenTypes?.Contains(unwrappedType) ?? false;
             (seenTypes ?? (seenTypes = new List<Type>())).Add(unwrappedType);
-            NestedInfos = hasBeenSeen ? new ComplexInterfaceInfo[]{} :
+            NestedInfos = hasBeenSeen ? new ComplexInterfaceInfo[] { } :
                 unwrappedType.GetInterfaces()
                 .Concat(InfoAttribute.PossibleTypes)
                 .SelectMany(pt => pt.GetProperties()
@@ -479,7 +481,8 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
                 parameterHelp = parameterHelp.Where(ph => (!ph.ParameterSetNames.Any() || ph.ParameterSetNames.Any(psn => psn == variant.VariantName || psn == AllParameterSets)) && ph.Name != "IncludeTotalCount");
             }
             var result = parameters.Select(p => new Parameter(variant.VariantName, p.Key, p.Value, parameterHelp.FirstOrDefault(ph => ph.Name == p.Key)));
-            if (variant.SupportsPaging) {
+            if (variant.SupportsPaging)
+            {
                 // If supportsPaging is set, we will need to add First and Skip parameters since they are treated as common parameters which as not contained on Metadata>parameters
                 variant.Info.Parameters["First"].Attributes.OfType<ParameterAttribute>().FirstOrDefault(pa => pa.ParameterSetName == variant.VariantName || pa.ParameterSetName == AllParameterSets).HelpMessage = "Gets only the first 'n' objects.";
                 variant.Info.Parameters["Skip"].Attributes.OfType<ParameterAttribute>().FirstOrDefault(pa => pa.ParameterSetName == variant.VariantName || pa.ParameterSetName == AllParameterSets).HelpMessage = "Ignores the first 'n' objects and then gets the remaining objects.";
