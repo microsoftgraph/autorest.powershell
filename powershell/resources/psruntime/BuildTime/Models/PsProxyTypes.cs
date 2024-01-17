@@ -200,9 +200,10 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
             AllVariantNames = allVariantNames;
             HasAllVariants = VariantNames.Any(vn => vn == AllParameterSets) || !AllVariantNames.Except(VariantNames).Any();
             var types = Parameters.Select(p => p.ParameterType).Distinct().ToArray();
-            //Console.WriteLine($"ParameterName: {ParameterName} -- types: {types.Length}");
+
             if (types.Length > 1)
             {
+                Console.WriteLine($"The parameter '{ParameterName}' has multiple parameter types [{String.Join(", ", types.Select(t => t.Name))}] defined, which is not supported.");
                 throw new ParsingMetadataException($"The parameter '{ParameterName}' has multiple parameter types [{String.Join(", ", types.Select(t => t.Name))}] defined, which is not supported.");
             }
             ParameterType = types.First();
