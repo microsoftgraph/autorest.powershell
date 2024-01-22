@@ -670,8 +670,12 @@ export class CmdletClass extends Class {
       yield If(IsNotNull($this.$<Property>('HttpPipelineAppend')), pipeline.invokeMethod('Append', toExpression(`(this.CommandRuntime as Microsoft.Rest.ClientRuntime.PowerShell.IAsyncCommandRuntimeExtensions)?.Wrap(${$this.$<Property>('HttpPipelineAppend')}) ?? ${$this.$<Property>('HttpPipelineAppend')}`)));
 
       yield '// get the client instance';
-      const apiCall = operation.callGraph[0];
 
+      const apiCall = operation.callGraph[0];
+      let hasBinarySchemaType = operation.parameters.some(p => p.schema.type === SchemaType.Binary);
+      if (hasBinarySchemaType) {
+        yield 'WriteDebug($"Content type {ContentType}");';
+      }
       // find each parameter to the method, and find out where the value is going to come from.
       const operationParameters =
         values(apiCall.parameters).
@@ -712,10 +716,20 @@ export class CmdletClass extends Class {
             return { name: each.name, expression: dotnet.Null, isPathParam: each.isPathParam };
           }).toArray();
 
+      //Add arbitrary headers
+      let customHeaderProperty = new Property("CustomHeader", System.String, { description: "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs" });
+      operationParameters.push({ name: 'CustomHeader', expression: customHeaderProperty, isPathParam: false });
+
       // is there a body parameter we should include?
       if ($this.bodyParameter) {
         operationParameters.push({ name: 'body', expression: $this.bodyParameter, isPathParam: false });
       }
+
+      if (hasBinarySchemaType) {
+        let contentTypeProperty = new Property("ContentType", System.String, { description: "The content type of the body parameter." });
+        operationParameters.push({ name: 'ContentType', expression: contentTypeProperty, isPathParam: false });
+      }
+
 
       // create the response handlers
       const responses = [...values(apiCall.responses), ...values(apiCall.exceptions)];
@@ -1238,7 +1252,7 @@ export class CmdletClass extends Class {
       body: [],
       operation: [],
     };
-
+    let hasBinarySchemaType = operation.parameters.some(p => p.schema.type === SchemaType.Binary);
     for (const parameter of values(operation.parameters)) {
       // these are the parameters that this command expects
       parameter.schema;
@@ -1445,6 +1459,29 @@ export class CmdletClass extends Class {
       idParam.add(new Attribute(ParameterAttribute, { parameters }));
       idParam.add(new Attribute(CategoryAttribute, { parameters: [`${ParameterCategory}.Path`] }));
     }
+
+    if (hasBinarySchemaType) {
+      //add in the pipeline parameter for content type.
+      const contentTypeParam = this.add(new BackedProperty('ContentType', dotnet.String, {
+        description: 'ContentType Parameter'
+      }));
+      const contentTypeParameters = [new LiteralExpression('Mandatory = false'), new LiteralExpression('HelpMessage = "ContentType Parameter"'), new LiteralExpression('ValueFromPipeline = true')];
+      contentTypeParam.metadata = { serializedName: 'content-type', required: true, readOnly: false, description: 'ContentType Parameter', possibleTypes: [] };
+      contentTypeParam.type = dotnet.String;
+      contentTypeParam.add(new Attribute(ParameterAttribute, { parameters: contentTypeParameters }));
+      contentTypeParam.add(new Attribute(CategoryAttribute, { parameters: [`${ParameterCategory}.Runtime`] }));
+    }
+
+    //add in the pipeline optional parameter for customheader
+    const customHeaderParam = this.add(new BackedProperty('CustomHeader', dotnet.String, {
+      description: 'CustomHeader Parameter. This should have a key:value and comma separated for multiple key:value pairs'
+    }));
+    const customHeaderParameters = [new LiteralExpression('Mandatory = false'), new LiteralExpression('HelpMessage = "CustomHeader Parameter. This should have a key:value and comma separated for multiple key:value pairs"'), new LiteralExpression('ValueFromPipeline = true')];
+    customHeaderParam.metadata = { serializedName: 'custom-Header', required: false, readOnly: false, description: 'CustomHeader Parameter. This should have a key:value and comma separated for multiple key:value pairs', possibleTypes: [] };
+    customHeaderParam.type = dotnet.String;
+    customHeaderParam.add(new Attribute(ParameterAttribute, { parameters: customHeaderParameters }));
+    customHeaderParam.add(new Attribute(CategoryAttribute, { parameters: [`${ParameterCategory}.Runtime`] }));
+
     for (const vParam of values(vps.operation)) {
       if (vParam.name === 'Host') {
         // skip 'Host'

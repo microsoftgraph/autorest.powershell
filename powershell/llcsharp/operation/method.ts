@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { NewResponse, ParameterLocation } from '@azure-tools/codemodel-v3';
-import { Operation, SchemaResponse, BinaryResponse, Schema as NewSchema, Response, BinarySchema } from '@azure-tools/codemodel';
+import { Header, NewResponse, ParameterLocation } from '@azure-tools/codemodel-v3';
+import { Operation, SchemaResponse, BinaryResponse, Schema as NewSchema, Response, BinarySchema, SchemaType, Parameter as NewHttpOperationParameter, Protocols, Protocol, ImplementationLocation, ApiVersion, SchemaContext } from '@azure-tools/codemodel';
 import { items, values, keys, Dictionary, length } from '@azure-tools/linq';
 import { EOL, DeepPartial } from '@azure-tools/codegen';
 import { Access, Modifier } from '@azure-tools/codegen-csharp';
@@ -31,6 +31,7 @@ import { CallbackParameter, OperationParameter, OperationBodyParameter } from '.
 import { isMediaTypeJson, isMediaTypeXml, KnownMediaType, knownMediaType, normalizeMediaType, parseMediaType } from '@azure-tools/codemodel-v3';
 import { ClassType, dotnet, System } from '@azure-tools/codegen-csharp';
 import { Ternery } from '@azure-tools/codegen-csharp';
+import { Schema as CustomSchema } from '@azure-tools/codemodel';
 
 
 
@@ -104,13 +105,18 @@ export class OperationMethod extends Method {
       this.addParameter(identity);
     }
     let baseUrl = '';
+    let additionalParameterIndex = 0;
+
+
     for (let index = 0; index < length(this.operation.parameters) && this.operation.parameters; index++) {
       const value = this.operation.parameters[index];
+
 
       if (value.language.default.name === '$host') {
         baseUrl = value.clientDefaultValue;
         continue;
       }
+
       const p = new OperationParameter(this, value, this.state.path('parameters', index));
 
       if (value.language.csharp?.constantValue) {
@@ -126,8 +132,48 @@ export class OperationMethod extends Method {
           yield '';
         });
       }
+      additionalParameterIndex++;
       this.methodParameters.push(p);
     }
+
+    //add parameter for custom headers.
+    const customSchema = new CustomSchema("customHeader", ".", SchemaType.Any);
+    customSchema.language = {
+      "csharp": {
+        "description": "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs",
+        "name": "customHeader",
+        "serializedName": "custom-header",
+      },
+      "default": {
+        "description": "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs",
+        "name": "customHeader",
+        "serializedName": "custom-header",
+      }
+    };
+    customSchema.type = SchemaType.String;
+    customSchema.apiVersions = operation.apiVersions;
+    customSchema.protocol = new Protocols();
+    let customHeaderParam = new NewHttpOperationParameter("customHeader", "Media type header for stream content types", customSchema);
+    customHeaderParam.implementation = ImplementationLocation.Client;
+    customHeaderParam.required = false;
+    customHeaderParam.extensions = {
+      "x-ms-docs-key-type": "customHeader",
+    }
+    customHeaderParam.schema = customSchema;
+    customHeaderParam.language = {
+      "csharp": {
+        "description": "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs",
+        "name": "customHeader",
+        "serializedName": "custom-header",
+      },
+      "default": {
+        "description": "Arbitrary request headers to include in this request.This should have a key:value and comma separated for multiple key:value pairs",
+        "name": "customHeader",
+        "serializedName": "custom-header",
+      }
+    };
+    const arbitraryHeaderParam = new OperationParameter(this, customHeaderParam, this.state.path('parameters', additionalParameterIndex + 1));
+    this.addParameter(arbitraryHeaderParam);
 
     if (baseUrl === '') {
       // Some services will make the host as an input parameter
@@ -135,7 +181,6 @@ export class OperationMethod extends Method {
     }
 
     this.description = this.operation.language.csharp?.description || '';
-
     // add body paramter if there should be one.
     if (this.operation.requests && this.operation.requests.length && this.operation.requests[0].parameters && this.operation.requests[0].parameters.length) {
       // this request does have a request body.
@@ -146,7 +191,49 @@ export class OperationMethod extends Method {
           mediaType: knownMediaType(KnownMediaType.Json),
           contentType: KnownMediaType.Json
         });
+
         this.addParameter(this.bodyParameter);
+        if (param.schema.type === SchemaType.Binary) {
+          const customSchema = new CustomSchema("contentType", "Content type needs to be specified especially for paths that support multiple content-types.", SchemaType.Any);
+          customSchema.language = {
+            "csharp": {
+              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
+              "name": "contentType",
+              "serializedName": "content-type",
+            },
+            "default": {
+              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
+              "name": "contentType",
+              "serializedName": "content-type",
+            }
+          };
+          customSchema.type = SchemaType.String;
+          customSchema.apiVersions = operation.apiVersions;
+          customSchema.protocol = new Protocols();
+          let contentTypeParam = new NewHttpOperationParameter("contentType", "Content type header for stream content types", customSchema);
+          contentTypeParam.clientDefaultValue = 'application/octet-stream';
+          contentTypeParam.implementation = ImplementationLocation.Client;
+          contentTypeParam.required = false;
+          contentTypeParam.extensions = {
+            "x-ms-docs-key-type": "contentType",
+          }
+          contentTypeParam.schema = customSchema;
+          contentTypeParam.language = {
+            "csharp": {
+              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
+              "name": "contentType",
+              "serializedName": "content-type",
+            },
+            "default": {
+              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
+              "name": "contentType",
+              "serializedName": "content-type",
+            }
+          };
+          const additionalParameter = new OperationParameter(this, contentTypeParam, this.state.path('parameters', additionalParameterIndex + 2));
+          this.addParameter(additionalParameter);
+
+        }
       }
     }
 
@@ -268,11 +355,40 @@ export class OperationMethod extends Method {
         yield EOL;
       }
       yield eventListener.signal(ClientRuntime.Events.HeaderParametersAdded);
+      yield EOL;
+      yield '// add custom headers if any';
+      yield `if(customHeader != null && !string.IsNullOrWhiteSpace(customHeader)) {`;
+      yield `    var customHeaderArray = customHeader.Split(',');`;
+      yield `    foreach(var header in customHeaderArray) {`;
+      yield `        var headerArray = header.Split(':');`;
+      yield `        if(headerArray.Length == 2) {`;
+      yield `            request.Headers.Add(headerArray[0], headerArray[1]);`;
+      yield `        }`;
+      yield `    }`;
+      yield `}`;
+      yield EOL;
 
       if (bp) {
-        yield '// set body content';
-        yield `request.Content = ${bp.serializeToContent(bp.mediaType, ClientRuntime.SerializationMode.None)};`;
-        yield `request.Content.Headers.ContentType = ${System.Net.Http.Headers.MediaTypeHeaderValue.Parse(bp.contentType)};`;
+
+        if (bp.typeDeclaration.schema.type === 'binary') {
+          yield `// get file extension from stream`
+          yield `System.IO.FileStream fileStream = body as System.IO.FileStream;`
+          yield `string fileExtension = System.IO.Path.GetExtension(fileStream.Name);`
+          yield EOL;
+          yield `// get mime type from registry`
+          yield `string mimeType = "application/octet-stream";`
+          yield `Microsoft.Win32.RegistryKey regKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(fileExtension);`
+          yield `if (regKey != null && regKey.GetValue("Content Type") != null) mimeType = regKey.GetValue("Content Type").ToString();`
+          yield EOL;
+          yield '// set body content';
+          yield `request.Content = new System.Net.Http.StreamContent(body);`;
+          yield `request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(!string.IsNullOrEmpty(contentType)? contentType : mimeType);`;
+        } else {
+          yield '// set body content';
+          yield `request.Content = ${bp.serializeToContent(bp.mediaType, ClientRuntime.SerializationMode.None)};`;
+          yield `request.Content.Headers.ContentType = ${System.Net.Http.Headers.MediaTypeHeaderValue.Parse(bp.contentType)};`;
+        }
+
         yield eventListener.signal(ClientRuntime.Events.BodyContentSet);
       }
 
@@ -338,7 +454,7 @@ export class CallMethod extends Method {
 
           // add response handlers
           yield Switch(`${response}.StatusCode`, function* () {
-            var responses = [...values(opMethod.operation.responses), ...values(opMethod.operation.exceptions)].sort(function (a, b) { return (<string>(a.protocol.http?.statusCodes[0])).localeCompare(<string>(b.protocol.http?.statusCodes[0]))});
+            var responses = [...values(opMethod.operation.responses), ...values(opMethod.operation.exceptions)].sort(function (a, b) { return (<string>(a.protocol.http?.statusCodes[0])).localeCompare(<string>(b.protocol.http?.statusCodes[0])) });
             for (const resp of responses) {
               if (resp.protocol.http?.statusCodes[0] !== 'default') {
                 const responseCode = resp.protocol.http?.statusCodes[0];
