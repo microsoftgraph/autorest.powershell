@@ -318,6 +318,7 @@ export class OperationMethod extends Method {
         }
       }
 
+
       yield '// construct URL';
       const pathAndQueryV = Local('pathAndQuery', `${System.Text.RegularExpressions.Regex.declaration}.Replace(
         "${url}"
