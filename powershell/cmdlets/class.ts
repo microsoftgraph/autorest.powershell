@@ -717,8 +717,8 @@ export class CmdletClass extends Class {
           }).toArray();
 
       //Add arbitrary headers
-      let customHeadersProperty = new Property("CustomHeaders", System.Collections.Generic.IDictionary(System.String, System.String), { description: "Optional headers that will be added to the request." });
-      operationParameters.push({ name: 'CustomHeaders', expression: customHeadersProperty, isPathParam: false });
+      let customHeadersProperty = new Property("Headers", System.Collections.Generic.IDictionary(System.String, System.String), { description: "Optional headers that will be added to the request." });
+      operationParameters.push({ name: 'Headers', expression: customHeadersProperty, isPathParam: false });
 
       // is there a body parameter we should include?
       if ($this.bodyParameter) {
@@ -1473,11 +1473,11 @@ export class CmdletClass extends Class {
     }
 
     //add in the pipeline optional parameter for customheader
-    const customHeadersParam = this.add(new BackedProperty('CustomHeaders', System.Collections.IDictionary, {
+    const customHeadersParam = this.add(new BackedProperty('Headers', System.Collections.IDictionary, {
       description: 'Optional headers that will be added to the request.'
     }));
     const customHeaderParameters = [new LiteralExpression('Mandatory = false'), new LiteralExpression('HelpMessage = "Optional headers that will be added to the request."'), new LiteralExpression('ValueFromPipeline = true')];
-    customHeadersParam.metadata = { serializedName: 'custom-Headers', required: false, readOnly: false, description: 'Optional headers that will be added to the request.', possibleTypes: [] };
+    customHeadersParam.metadata = { serializedName: 'headers', required: false, readOnly: false, description: 'Optional headers that will be added to the request.', possibleTypes: [] };
     customHeadersParam.type = System.Collections.IDictionary;
     customHeadersParam.add(new Attribute(ParameterAttribute, { parameters: customHeaderParameters }));
     customHeadersParam.add(new Attribute(CategoryAttribute, { parameters: [`${ParameterCategory}.Runtime`] }));
