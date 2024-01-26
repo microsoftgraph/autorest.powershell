@@ -136,43 +136,30 @@ export class OperationMethod extends Method {
       this.methodParameters.push(p);
     }
 
+
     //add parameter for custom headers.
-    const customSchema = new CustomSchema("customHeader", ".", SchemaType.Any);
+    const customSchema = new CustomSchema("customHeaders", ".", SchemaType.String);
     customSchema.language = {
       "csharp": {
-        "description": "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs",
-        "name": "customHeader",
-        "serializedName": "custom-header",
+        "description": "Optional headers that will be added to the request.",
+        "name": "customHeaders",
+        "serializedName": "custom-headers",
       },
       "default": {
-        "description": "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs",
-        "name": "customHeader",
-        "serializedName": "custom-header",
+        "description": "Optional headers that will be added to the request.",
+        "name": "customHeaders",
+        "serializedName": "custom-headers",
       }
     };
-    customSchema.type = SchemaType.String;
+    //customSchema.type = new ClassType('System.Collections', "IDictionary");
     customSchema.apiVersions = operation.apiVersions;
     customSchema.protocol = new Protocols();
-    let customHeaderParam = new NewHttpOperationParameter("customHeader", "Media type header for stream content types", customSchema);
+    let customHeaderParam = new NewHttpOperationParameter("customHeaders", "Optional headers that will be added to the request.", customSchema);
     customHeaderParam.implementation = ImplementationLocation.Client;
     customHeaderParam.required = false;
-    customHeaderParam.extensions = {
-      "x-ms-docs-key-type": "customHeader",
-    }
-    customHeaderParam.schema = customSchema;
-    customHeaderParam.language = {
-      "csharp": {
-        "description": "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs",
-        "name": "customHeader",
-        "serializedName": "custom-header",
-      },
-      "default": {
-        "description": "Arbitrary request headers to include in this request.This should have a key:value and comma separated for multiple key:value pairs",
-        "name": "customHeader",
-        "serializedName": "custom-header",
-      }
-    };
+    customHeaderParam.language = customSchema.language;
     const arbitraryHeaderParam = new OperationParameter(this, customHeaderParam, this.state.path('parameters', additionalParameterIndex + 1));
+    arbitraryHeaderParam.type = new ClassType('global::System.Collections', "IDictionary");
     this.addParameter(arbitraryHeaderParam);
 
     if (baseUrl === '') {
@@ -214,22 +201,7 @@ export class OperationMethod extends Method {
           contentTypeParam.clientDefaultValue = 'application/octet-stream';
           contentTypeParam.implementation = ImplementationLocation.Client;
           contentTypeParam.required = false;
-          contentTypeParam.extensions = {
-            "x-ms-docs-key-type": "contentType",
-          }
-          contentTypeParam.schema = customSchema;
-          contentTypeParam.language = {
-            "csharp": {
-              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
-              "name": "contentType",
-              "serializedName": "content-type",
-            },
-            "default": {
-              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
-              "name": "contentType",
-              "serializedName": "content-type",
-            }
-          };
+          contentTypeParam.language = customSchema.language;
           const additionalParameter = new OperationParameter(this, contentTypeParam, this.state.path('parameters', additionalParameterIndex + 2));
           this.addParameter(additionalParameter);
 
@@ -358,13 +330,9 @@ export class OperationMethod extends Method {
       yield eventListener.signal(ClientRuntime.Events.HeaderParametersAdded);
       yield EOL;
       yield '// add custom headers if any';
-      yield `if(customHeader != null && !string.IsNullOrWhiteSpace(customHeader)) {`;
-      yield `    var customHeaderArray = customHeader.Split(',');`;
-      yield `    foreach(var header in customHeaderArray) {`;
-      yield `        var headerArray = header.Split(':');`;
-      yield `        if(headerArray.Length == 2) {`;
-      yield `            request.Headers.Add(headerArray[0], headerArray[1]);`;
-      yield `        }`;
+      yield `if (customHeaders.Count > 0) {`;
+      yield `    foreach (var header in customHeaders.Keys) {`;
+      yield `        request.Headers.Add(header.ToString(), customHeaders[header].ToString());`;
       yield `    }`;
       yield `}`;
       yield EOL;

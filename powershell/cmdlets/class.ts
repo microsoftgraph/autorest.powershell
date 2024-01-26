@@ -717,8 +717,8 @@ export class CmdletClass extends Class {
           }).toArray();
 
       //Add arbitrary headers
-      let customHeaderProperty = new Property("CustomHeader", System.String, { description: "Arbitrary request headers to include in this request. This should have a key:value and comma separated for multiple key:value pairs" });
-      operationParameters.push({ name: 'CustomHeader', expression: customHeaderProperty, isPathParam: false });
+      let customHeadersProperty = new Property("CustomHeaders", System.Collections.Generic.IDictionary(System.String, System.String), { description: "Optional headers that will be added to the request." });
+      operationParameters.push({ name: 'CustomHeaders', expression: customHeadersProperty, isPathParam: false });
 
       // is there a body parameter we should include?
       if ($this.bodyParameter) {
@@ -1473,14 +1473,14 @@ export class CmdletClass extends Class {
     }
 
     //add in the pipeline optional parameter for customheader
-    const customHeaderParam = this.add(new BackedProperty('CustomHeader', dotnet.String, {
-      description: 'CustomHeader Parameter. This should have a key:value and comma separated for multiple key:value pairs'
+    const customHeadersParam = this.add(new BackedProperty('CustomHeaders', System.Collections.IDictionary, {
+      description: 'Optional headers that will be added to the request.'
     }));
-    const customHeaderParameters = [new LiteralExpression('Mandatory = false'), new LiteralExpression('HelpMessage = "CustomHeader Parameter. This should have a key:value and comma separated for multiple key:value pairs"'), new LiteralExpression('ValueFromPipeline = true')];
-    customHeaderParam.metadata = { serializedName: 'custom-Header', required: false, readOnly: false, description: 'CustomHeader Parameter. This should have a key:value and comma separated for multiple key:value pairs', possibleTypes: [] };
-    customHeaderParam.type = dotnet.String;
-    customHeaderParam.add(new Attribute(ParameterAttribute, { parameters: customHeaderParameters }));
-    customHeaderParam.add(new Attribute(CategoryAttribute, { parameters: [`${ParameterCategory}.Runtime`] }));
+    const customHeaderParameters = [new LiteralExpression('Mandatory = false'), new LiteralExpression('HelpMessage = "Optional headers that will be added to the request."'), new LiteralExpression('ValueFromPipeline = true')];
+    customHeadersParam.metadata = { serializedName: 'custom-Headers', required: false, readOnly: false, description: 'Optional headers that will be added to the request.', possibleTypes: [] };
+    customHeadersParam.type = System.Collections.IDictionary;
+    customHeadersParam.add(new Attribute(ParameterAttribute, { parameters: customHeaderParameters }));
+    customHeadersParam.add(new Attribute(CategoryAttribute, { parameters: [`${ParameterCategory}.Runtime`] }));
 
     for (const vParam of values(vps.operation)) {
       if (vParam.name === 'Host') {
