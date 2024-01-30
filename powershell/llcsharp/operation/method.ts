@@ -330,7 +330,7 @@ export class OperationMethod extends Method {
       yield eventListener.signal(ClientRuntime.Events.HeaderParametersAdded);
       yield EOL;
       yield '// add custom headers if any';
-      yield `if (headers.Count > 0) {`;
+      yield `if (headers != null && headers.Count > 0) {`;
       yield `    foreach (var header in headers.Keys) {`;
       yield `        request.Headers.Add(header.ToString(), headers[header].ToString());`;
       yield `    }`;
