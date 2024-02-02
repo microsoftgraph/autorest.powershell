@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 namespace Microsoft.Graph.PowerShell.ResponseHeaders
 {
-    class ResponseHeader
+    public class ResponseHeader
     {
         public List<ResponseHeaderProperties> ResponseHeaders { get; set; }
 
     }
 
-    class ResponseHeaderProperties
+    public class ResponseHeaderProperties
     {
         public string Date { get; set; }
         public string request_id { get; set; }

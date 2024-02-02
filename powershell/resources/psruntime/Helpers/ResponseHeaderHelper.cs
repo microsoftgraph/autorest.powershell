@@ -1,18 +1,17 @@
 using System.Net.Http;
 using System.Collections.Generic;
-using Microsoft.Graph.PowerShell.ResponseHeaders;
 
 namespace Microsoft.Graph.PowerShell.ResponseHeader.Helper
 {
     public static class ResponseHeaderHelper
     {
 
-        public static ResponseHeader ToResponseHeader(HttpResponseMessage response)
+        public static Microsoft.Graph.PowerShell.ResponseHeaders.ResponseHeader ToResponseHeader(HttpResponseMessage response)
 
         {
             var responseHeaders = response.Headers.GetEnumerator();
-            ResponseHeaderProperties props = new ResponseHeaderProperties();
-            var headers = new List<ResponseHeaderProperties>();
+            var props = new Microsoft.Graph.PowerShell.ResponseHeaders.ResponseHeaderProperties();
+            var headers = new List<Microsoft.Graph.PowerShell.ResponseHeaders.ResponseHeaderProperties>();
             while (responseHeaders.MoveNext())
             {
                 var header = responseHeaders.Current;
@@ -27,7 +26,7 @@ namespace Microsoft.Graph.PowerShell.ResponseHeader.Helper
 
             headers.Add(props);
 
-            return new ResponseHeader { ResponseHeaders = headers };
+            return new Microsoft.Graph.PowerShell.ResponseHeaders.ResponseHeader { ResponseHeaders = headers };
         }
     }
 }
