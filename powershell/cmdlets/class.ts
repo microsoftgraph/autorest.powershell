@@ -965,6 +965,8 @@ export class CmdletClass extends Class {
 
             //  let's just return the result object (or unwrapped result object)
             yield `WriteObject(${outValue});`;
+            yield 'var headers = Microsoft.Graph.PowerShell.ResponseHeader.Helper.ResponseHeaderHelper.ToResponseHeader(responseMessage);'
+            yield 'WriteObject(headers);'
             return;
           }
 
@@ -1007,6 +1009,8 @@ export class CmdletClass extends Class {
             // no return type. Let's just return ... true?
             yield 'WriteObject(true);';
           });
+          yield 'var headers = Microsoft.Graph.PowerShell.ResponseHeader.Helper.ResponseHeaderHelper.ToResponseHeader(responseMessage);'
+          yield 'WriteObject(headers);'
         });
         $this.add(responseMethod);
       }
