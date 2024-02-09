@@ -906,6 +906,13 @@ export class CmdletClass extends Class {
                           })
                         ))
                       }));
+                      yield `var headers = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();`
+                      yield `foreach (var kv in responseMessage.Headers) {`
+                      yield `  headers[kv.Key] = kv.Value;`
+                      yield `}`
+                      yield `dynamic obj = new System.Dynamic.ExpandoObject();`
+                      yield `obj.Headers = headers;`
+                      yield `WriteObject(obj);`
                     }
                     return;
                   } else if (valueProperty) {
@@ -965,8 +972,13 @@ export class CmdletClass extends Class {
 
             //  let's just return the result object (or unwrapped result object)
             yield `WriteObject(${outValue});`;
-            yield 'var headers = Microsoft.Graph.PowerShell.ResponseHeader.Helper.ResponseHeaderHelper.ToResponseHeader(responseMessage);'
-            yield 'WriteObject(headers);'
+            yield `var headers = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();`
+            yield `foreach (var kv in responseMessage.Headers) {`
+            yield `  headers[kv.Key] = kv.Value;`
+            yield `}`
+            yield `dynamic obj = new System.Dynamic.ExpandoObject();`
+            yield `obj.Headers = headers;`
+            yield `WriteObject(obj);`
             return;
           }
 
@@ -1009,8 +1021,13 @@ export class CmdletClass extends Class {
             // no return type. Let's just return ... true?
             yield 'WriteObject(true);';
           });
-          yield 'var headers = Microsoft.Graph.PowerShell.ResponseHeader.Helper.ResponseHeaderHelper.ToResponseHeader(responseMessage);'
-          yield 'WriteObject(headers);'
+          yield `var headers = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();`
+          yield `foreach (var kv in responseMessage.Headers) {`
+          yield `  headers[kv.Key] = kv.Value;`
+          yield `}`
+          yield `dynamic obj = new System.Dynamic.ExpandoObject();`
+          yield `obj.Headers = headers;`
+          yield `WriteObject(obj);`
         });
         $this.add(responseMethod);
       }
@@ -1108,7 +1125,6 @@ export class CmdletClass extends Class {
       });
     });
   }
-
 
   private NewImplementSerialization(operation: CommandOperation) {
     const $this = this;
