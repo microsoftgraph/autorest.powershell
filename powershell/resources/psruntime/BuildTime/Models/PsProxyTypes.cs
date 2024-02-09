@@ -66,6 +66,11 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
             ProfileName = profileName;
             Variants = variants;
             Console.WriteLine($"module: {moduleName} -- cmdlet: {cmdletName} -- profileName: {profileName}");
+            foreach (Variant item in variants)
+            {
+                Console.WriteLine($"VariantName: {item.VariantName}");
+            }
+            Console.WriteLine($"************");
             ParameterGroups = Variants.ToParameterGroups().OrderBy(pg => pg.OrderCategory).ThenByDescending(pg => pg.IsMandatory).ToArray();
             var aliasDuplicates = ParameterGroups.SelectMany(pg => pg.Aliases)
                 //https://stackoverflow.com/a/18547390/294804
