@@ -966,14 +966,7 @@ export class CmdletClass extends Class {
 
             //  let's just return the result object (or unwrapped result object)
             yield `WriteObject(${outValue});`;
-            const responseHeaderIt = $this.GetResponseHeaders();
-            while (true) {
-              let result = responseHeaderIt.next();
-              if (result.done) {
-                break;
-              }
-              yield result.value;
-            }
+            yield* $this.GetResponseHeaders();
             return;
           }
 
