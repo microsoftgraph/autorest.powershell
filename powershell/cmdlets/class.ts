@@ -1023,14 +1023,7 @@ export class CmdletClass extends Class {
             // no return type. Let's just return ... true?
             yield 'WriteObject(true);';
           });
-          const responseHeaderIt = $this.GetResponseHeaders();
-          while (true) {
-            let result = responseHeaderIt.next();
-            if (result.done) {
-              break;
-            }
-            yield result.value;
-          }
+          yield* $this.GetResponseHeaders();
         });
         $this.add(responseMethod);
       }
