@@ -906,14 +906,7 @@ export class CmdletClass extends Class {
                           })
                         ))
                       }));
-                      const responseHeaderIt = $this.GetResponseHeaders();
-                      while (true) {
-                        let result = responseHeaderIt.next();
-                        if (result.done) {
-                          break;
-                        }
-                        yield result.value;
-                      }
+                      yield* $this.GetResponseHeaders();
                     }
                     return;
                   } else if (valueProperty) {
