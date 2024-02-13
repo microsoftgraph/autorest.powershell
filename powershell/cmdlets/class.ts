@@ -906,6 +906,7 @@ export class CmdletClass extends Class {
                           })
                         ))
                       }));
+                      yield* $this.GetResponseHeaders();
                     }
                     return;
                   } else if (valueProperty) {
@@ -965,8 +966,7 @@ export class CmdletClass extends Class {
 
             //  let's just return the result object (or unwrapped result object)
             yield `WriteObject(${outValue});`;
-            yield 'var headers = Microsoft.Graph.PowerShell.ResponseHeader.Helper.ResponseHeaderHelper.ToResponseHeader(responseMessage);'
-            yield 'WriteObject(headers);'
+            yield* $this.GetResponseHeaders();
             return;
           }
 
@@ -1009,8 +1009,7 @@ export class CmdletClass extends Class {
             // no return type. Let's just return ... true?
             yield 'WriteObject(true);';
           });
-          yield 'var headers = Microsoft.Graph.PowerShell.ResponseHeader.Helper.ResponseHeaderHelper.ToResponseHeader(responseMessage);'
-          yield 'WriteObject(headers);'
+          yield* $this.GetResponseHeaders();
         });
         $this.add(responseMethod);
       }
@@ -1108,7 +1107,13 @@ export class CmdletClass extends Class {
       });
     });
   }
-
+  private * GetResponseHeaders() {
+    yield `var obj = new System.Collections.Hashtable();`
+    yield `foreach (var headerItem in responseMessage.Headers) {`
+    yield `   obj.Add(headerItem.Key, headerItem.Value);`
+    yield `}`
+    yield `WriteObject(obj);`
+  }
 
   private NewImplementSerialization(operation: CommandOperation) {
     const $this = this;
@@ -1636,6 +1641,8 @@ export class CmdletClass extends Class {
     let shouldAddPassThru = false;
     // set to hold the output types
     const outputTypes = new Set<string>();
+    const headerOutputType = new Set<string>();
+    headerOutputType.add(`typeof(System.Collections.Hashtable)`);
     for (const httpOperation of values(operation.callGraph)) {
       const pageableInfo = httpOperation.language.csharp?.pageable;
       const v = httpOperation.responses && httpOperation.responses.length > 0 && httpOperation.responses[0] instanceof SchemaResponse;
@@ -1693,8 +1700,8 @@ export class CmdletClass extends Class {
         }
 
       }
-    }
 
+    }
     // if any response does not return,
     // the cmdlet should have a PassThru parameter
     shouldAddPassThru = shouldAddPassThru || values(operation.callGraph)
@@ -1770,6 +1777,7 @@ export class CmdletClass extends Class {
       this.add(new Attribute(ClientRuntime.PreviewMessageAttribute, { parameters: [`"${operation.details.csharp.previewMessage}"`] }))
     }
     this.add(new Attribute(OutputTypeAttribute, { parameters: [...outputTypes] }));
+    this.add(new Attribute(OutputTypeAttribute, { parameters: [...headerOutputType] }));
     if (shouldAddPassThru) {
       const passThru = this.add(new Property('PassThru', SwitchParameter, { description: 'When specified, forces the cmdlet return a \'bool\' given that there isn\'t a return type by default.' }));
       passThru.add(new Attribute(ParameterAttribute, { parameters: ['Mandatory = false', 'HelpMessage = "Returns true when the command succeeds"'] }));
