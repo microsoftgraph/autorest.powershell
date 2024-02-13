@@ -1129,7 +1129,7 @@ export class CmdletClass extends Class {
     });
   }
   private * GetResponseHeaders() {
-    yield ` var obj = new System.Collections.Hashtable();`
+    yield `var obj = new System.Collections.Hashtable();`
     yield `foreach (var headerItem in responseMessage.Headers) {`
     yield `   obj.Add(headerItem.Key, headerItem.Value);`
     yield `}`
