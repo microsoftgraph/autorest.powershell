@@ -1108,11 +1108,13 @@ export class CmdletClass extends Class {
     });
   }
   private * GetResponseHeaders() {
-    yield `var obj = new System.Collections.Hashtable();`
-    yield `foreach (var headerItem in responseMessage.Headers) {`
-    yield `   obj.Add(headerItem.Key, headerItem.Value);`
+    yield `// get the headers from the response and assign it to the variable provided by the user via the RHV(ResponseHeadersVariable) parameter.`;
+    yield `if (!string.IsNullOrEmpty(ResponseHeadersVariable))`
+    yield `{`
+    yield `   var headers = Microsoft.Graph.PowerShell.ResponseHeaders.Helpers.ResponseHeaderHelper.GetHttpResponseHeaders(responseMessage);`
+    yield `   var vi = this.SessionState.PSVariable;`
+    yield `   vi.Set(new System.Management.Automation.PSVariable($"global:{ResponseHeadersVariable}", headers));`
     yield `}`
-    yield `WriteObject(obj);`
   }
 
   private NewImplementSerialization(operation: CommandOperation) {
@@ -1491,6 +1493,15 @@ export class CmdletClass extends Class {
     customHeadersParam.add(new Attribute(ParameterAttribute, { parameters: customHeaderParameters }));
     customHeadersParam.add(new Attribute(CategoryAttribute, { parameters: [`${ParameterCategory}.Runtime`] }));
 
+    //add in the pipeline optional parameter for capturing response header
+    const responseHeaderVariableParam = this.add(new BackedProperty('ResponseHeadersVariable', dotnet.String, {
+      description: 'Optional Response Headers Variable'
+    }));
+    const responseHeaderVariableParameters = [new LiteralExpression('Mandatory = false'), new LiteralExpression('HelpMessage = "Optional Response Headers Variable."')];
+    responseHeaderVariableParam.type = dotnet.String;
+    responseHeaderVariableParam.add(new Attribute(ParameterAttribute, { parameters: responseHeaderVariableParameters }));
+    responseHeaderVariableParam.add(new Attribute(Alias, { parameters: ['"RHV"'] }));
+
     for (const vParam of values(vps.operation)) {
       if (vParam.name === 'Host') {
         // skip 'Host'
@@ -1641,8 +1652,6 @@ export class CmdletClass extends Class {
     let shouldAddPassThru = false;
     // set to hold the output types
     const outputTypes = new Set<string>();
-    const headerOutputType = new Set<string>();
-    headerOutputType.add(`typeof(System.Collections.Hashtable)`);
     for (const httpOperation of values(operation.callGraph)) {
       const pageableInfo = httpOperation.language.csharp?.pageable;
       const v = httpOperation.responses && httpOperation.responses.length > 0 && httpOperation.responses[0] instanceof SchemaResponse;
@@ -1777,7 +1786,6 @@ export class CmdletClass extends Class {
       this.add(new Attribute(ClientRuntime.PreviewMessageAttribute, { parameters: [`"${operation.details.csharp.previewMessage}"`] }))
     }
     this.add(new Attribute(OutputTypeAttribute, { parameters: [...outputTypes] }));
-    this.add(new Attribute(OutputTypeAttribute, { parameters: [...headerOutputType] }));
     if (shouldAddPassThru) {
       const passThru = this.add(new Property('PassThru', SwitchParameter, { description: 'When specified, forces the cmdlet return a \'bool\' given that there isn\'t a return type by default.' }));
       passThru.add(new Attribute(ParameterAttribute, { parameters: ['Mandatory = false', 'HelpMessage = "Returns true when the command succeeds"'] }));
