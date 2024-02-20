@@ -906,7 +906,7 @@ export class CmdletClass extends Class {
                           })
                         ))
                       }));
-                      //yield* $this.GetResponseHeaders();
+                      yield* $this.GetResponseHeaders();
                     }
                     return;
                   } else if (valueProperty) {
@@ -966,7 +966,7 @@ export class CmdletClass extends Class {
 
             //  let's just return the result object (or unwrapped result object)
             yield `WriteObject(${outValue});`;
-            //yield* $this.GetResponseHeaders();
+            yield* $this.GetResponseHeaders();
             return;
           }
 
@@ -1009,7 +1009,7 @@ export class CmdletClass extends Class {
             // no return type. Let's just return ... true?
             yield 'WriteObject(true);';
           });
-          //yield* $this.GetResponseHeaders();
+          yield* $this.GetResponseHeaders();
         });
         $this.add(responseMethod);
       }
