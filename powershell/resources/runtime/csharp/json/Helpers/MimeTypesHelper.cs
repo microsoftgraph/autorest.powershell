@@ -29,6 +29,7 @@ namespace Microsoft.Graph.PowerShell.MimeTypes.Helpers
                 {".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
                 {".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
                 {".xls", "application/vnd.ms-excel"},
+                {".ico", "image/vnd.microsoft.icon"}
                 {".csv", "text/csv"},
                 {".xml", "text/xml"},
                 {".txt", "text/plain"},
@@ -37,28 +38,13 @@ namespace Microsoft.Graph.PowerShell.MimeTypes.Helpers
                 {".7z", "application/x-7z-compressed"},
                 {".gz", "application/gzip"},
                 {".tar", "application/x-tar"},
-                {".mp3", "audio/mpeg"},
-                {".wav", "audio/wav"},
-                {".mp4", "video/mp4"},
-                {".avi", "video/x-msvideo"},
-                {".wmv", "video/x-ms-wmv"},
-                {".flv", "video/x-flv"},
-                {".mov", "video/quicktime"},
-                {".mkv", "video/x-matroska"},
-                {".webm", "video/webm"},
-                {".ogg", "video/ogg"},
-                {".ogv", "video/ogg"},
                 {".webp", "image/webp"},
                 {".svg", "image/svg+xml"},
                 {".json", "application/json"},
                 {".html", "text/html"},
                 {".htm", "text/html"},
                 {".css", "text/css"},
-                {".js", "application/javascript"},
-                {".ts", "video/mp2t"},
-                {".wasm", "application/wasm"},
-                {".ico", "image/x-icon"},
-                {".cur", "image/x-icon"}
+                {".js", "application/javascript"}
             };
 
             // if the file type is not recognized, return default"application/octet-stream"
