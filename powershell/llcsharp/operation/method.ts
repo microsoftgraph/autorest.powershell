@@ -344,10 +344,8 @@ export class OperationMethod extends Method {
           yield `System.IO.FileStream fileStream = body as System.IO.FileStream;`
           yield `string fileExtension = System.IO.Path.GetExtension(fileStream.Name);`
           yield EOL;
-          yield `// get mime type from registry`
-          yield `string mimeType = "application/octet-stream";`
-          yield `Microsoft.Win32.RegistryKey regKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(fileExtension);`
-          yield `if (regKey != null && regKey.GetValue("Content Type") != null) mimeType = regKey.GetValue("Content Type").ToString();`
+          yield `// get mime type from helper`
+          yield `string mimeType = Microsoft.Graph.PowerShell.MimeTypes.Helpers.MimeTypesHelper.GetContentType(fileExtension);`
           yield EOL;
           yield '// set body content';
           yield `request.Content = new System.Net.Http.StreamContent(body);`;
