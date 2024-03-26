@@ -29,7 +29,7 @@ namespace Microsoft.Graph.PowerShell.MimeTypes.Helpers
                 {".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
                 {".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
                 {".xls", "application/vnd.ms-excel"},
-                {".ico", "image/vnd.microsoft.icon"}
+                {".ico", "image/vnd.microsoft.icon"},
                 {".csv", "text/csv"},
                 {".xml", "text/xml"},
                 {".txt", "text/plain"},
