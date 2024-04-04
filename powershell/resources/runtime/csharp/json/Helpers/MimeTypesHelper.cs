@@ -47,7 +47,7 @@ namespace Microsoft.Graph.PowerShell.MimeTypes.Helpers
                 {".js", "application/javascript"}
             };
 
-            // if the file type is not recognized, return default"application/octet-stream"
+            // if the file type is not recognized, return default "application/octet-stream"
             return mimeTypes.ContainsKey(fileExtension) ? mimeTypes[fileExtension] : "application/octet-stream";
         }
     }
