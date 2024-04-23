@@ -6,6 +6,7 @@
 import { codeModelSchema, CodeModel, ObjectSchema, ConstantSchema, GroupSchema, isObjectSchema, SchemaType, GroupProperty, ParameterLocation, Operation, Parameter, ImplementationLocation, OperationGroup, Request, SchemaContext } from '@azure-tools/codemodel';
 import { getPascalIdentifier, removeSequentialDuplicates, pascalCase, fixLeadingNumber, deconstruct, selectName, EnglishPluralizationService, serialize } from '@azure-tools/codegen';
 import { length, values, } from '@azure-tools/linq';
+import { ExternalDocumentation } from '../utils/components';
 import { Host, Session, startSession } from '@azure-tools/autorest-extension-base';
 import { CommandOperation } from '../utils/command-operation';
 import { PwshModel } from '../utils/PwshModel';
@@ -43,7 +44,13 @@ function getNameOptions(typeName: string, components: Array<string>) {
   return [...result.values()];
 }
 
-
+function getCombinedDescription(rawDescription: string, externalDocsUrl?: string): string {
+  let description = rawDescription ?? "";
+  if (!!externalDocsUrl && !!externalDocsUrl.trim()) {
+    description = description.concat(` Please visit external url ${externalDocsUrl} to get more information.`)
+  }
+  return description;
+}
 function createVirtualProperties(schema: ObjectSchema, stack: Array<string>, threshold: number, conflicts: Array<string>) {
   // Some properties should be removed are wrongly kept as null and need to clean them
   if (schema.properties) {
@@ -185,6 +192,8 @@ function createVirtualProperties(schema: ObjectSchema, stack: Array<string>, thr
 
       // if the child property is low enough (or it's 'properties'), let's create virtual properties for each one.
       // create a private property for the inlined ones to use.
+      const combinedDescription = getCombinedDescription(property.language.default.description, property.schema?.externalDocs?.url);
+      property.language.default.description = combinedDescription;
       const privateProperty = {
         name: getPascalIdentifier(propertyName),
         propertySchema: schema,
@@ -267,6 +276,9 @@ function createVirtualProperties(schema: ObjectSchema, stack: Array<string>, thr
     // so we don't need to do any inlining
     // however, we can add it to our list of virtual properties
     // so that our consumers can get it.
+
+    const combinedDescription = getCombinedDescription(property.language.default.description, property.schema?.externalDocs?.url);
+    property.language.default.description = combinedDescription;
     virtualProperties.owned.push({
       name,
       property,
@@ -345,6 +357,9 @@ function createVirtualParameters(operation: CommandOperation) {
       }
     } else {
       // dolauli if not drop body or not body parameter add it to operation 
+
+      const combinedDescription = getCombinedDescription(parameter.schema.language.default.description, parameter.schema.externalDocs?.url);
+      parameter.schema.language.default.description = combinedDescription;
       virtualParameters.operation.push({
         name: parameter.details.default.name,
         nameOptions: [parameter.details.default.name],
