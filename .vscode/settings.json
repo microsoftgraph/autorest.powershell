@@ -70,7 +70,7 @@
   },
   "[typescriptreact]": {
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": false
+      "source.fixAll.eslint": "false"
     }
   }
 }
