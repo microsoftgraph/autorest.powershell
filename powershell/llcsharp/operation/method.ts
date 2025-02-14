@@ -336,17 +336,6 @@ export class OperationMethod extends Method {
       yield '}';
       yield EOL;
 
-      if (method.toLowerCase() === 'post' || method.toLowerCase() === 'put' || method.toLowerCase() === 'patch') {
-        yield 'string cleanedBody = "@{}";';
-        yield 'if (body != null) {';
-        yield '    cleanedBody = body.ToJson(null).ToString();';
-        yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
-        yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
-        yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
-        yield '}';
-        yield EOL;
-      }
-
       if (bp) {
 
         if (bp.typeDeclaration.schema.type === 'binary') {
@@ -361,6 +350,17 @@ export class OperationMethod extends Method {
           yield 'request.Content = new System.Net.Http.StreamContent(body);';
           yield 'request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(!string.IsNullOrEmpty(contentType)? contentType : mimeType);';
         } else {
+          // This block is only supposed to be applied on requests that have a body parameter
+          if (method.capitalize() === 'POST' || method.capitalize() === 'PUT' || method.capitalize() === 'PATCH') {
+            yield 'string cleanedBody = "@{}";';
+            yield 'if (body != null) {';
+            yield '    cleanedBody = body.ToJson(null).ToString();';
+            yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+            yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
+            yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
+            yield '}';
+            yield EOL;
+          }
           yield '// set body content';
           yield `request.Content = ${bp.serializeToContent(bp.mediaType, ClientRuntime.SerializationMode.None)};`;
           yield `request.Content.Headers.ContentType = ${System.Net.Http.Headers.MediaTypeHeaderValue.Parse(bp.contentType)};`;
