@@ -34,7 +34,6 @@ import { Ternery } from '@azure-tools/codegen-csharp';
 import { Schema as CustomSchema } from '@azure-tools/codemodel';
 
 
-
 function removeEncoding(pp: OperationParameter, paramName: string, kmt: KnownMediaType): string {
   const up = pp.typeDeclaration.serializeToNode(kmt, pp, paramName, ClientRuntime.SerializationMode.None).value;
   return pp.param.extensions && pp.param.extensions['x-ms-skip-url-encoding'] ? up.replace(/global::System.Uri.EscapeDataString|System.Uri.EscapeDataString/g, '') : up;
@@ -138,28 +137,28 @@ export class OperationMethod extends Method {
 
 
     //add parameter for custom headers.
-    const customSchema = new CustomSchema("headers", ".", SchemaType.String);
+    const customSchema = new CustomSchema('headers', '.', SchemaType.String);
     customSchema.language = {
-      "csharp": {
-        "description": "Optional headers that will be added to the request.",
-        "name": "headers",
-        "serializedName": "headers",
+      'csharp': {
+        'description': 'Optional headers that will be added to the request.',
+        'name': 'headers',
+        'serializedName': 'headers',
       },
-      "default": {
-        "description": "Optional headers that will be added to the request.",
-        "name": "headers",
-        "serializedName": "headers",
+      'default': {
+        'description': 'Optional headers that will be added to the request.',
+        'name': 'headers',
+        'serializedName': 'headers',
       }
     };
     //customSchema.type = new ClassType('System.Collections', "IDictionary");
     customSchema.apiVersions = operation.apiVersions;
     customSchema.protocol = new Protocols();
-    let customHeaderParam = new NewHttpOperationParameter("headers", "Optional headers that will be added to the request.", customSchema);
+    const customHeaderParam = new NewHttpOperationParameter('headers', 'Optional headers that will be added to the request.', customSchema);
     customHeaderParam.implementation = ImplementationLocation.Client;
     customHeaderParam.required = false;
     customHeaderParam.language = customSchema.language;
     const arbitraryHeaderParam = new OperationParameter(this, customHeaderParam, this.state.path('parameters', additionalParameterIndex + 1));
-    arbitraryHeaderParam.type = new ClassType('global::System.Collections', "IDictionary");
+    arbitraryHeaderParam.type = new ClassType('global::System.Collections', 'IDictionary');
     this.addParameter(arbitraryHeaderParam);
 
     if (baseUrl === '') {
@@ -181,23 +180,23 @@ export class OperationMethod extends Method {
 
         this.addParameter(this.bodyParameter);
         if (param.schema.type === SchemaType.Binary) {
-          const customSchema = new CustomSchema("contentType", "Content type needs to be specified especially for paths that support multiple content-types.", SchemaType.Any);
+          const customSchema = new CustomSchema('contentType', 'Content type needs to be specified especially for paths that support multiple content-types.', SchemaType.Any);
           customSchema.language = {
-            "csharp": {
-              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
-              "name": "contentType",
-              "serializedName": "content-type",
+            'csharp': {
+              'description': 'Content type needs to be specified especially for paths that support multiple content-types.',
+              'name': 'contentType',
+              'serializedName': 'content-type',
             },
-            "default": {
-              "description": "Content type needs to be specified especially for paths that support multiple content-types.",
-              "name": "contentType",
-              "serializedName": "content-type",
+            'default': {
+              'description': 'Content type needs to be specified especially for paths that support multiple content-types.',
+              'name': 'contentType',
+              'serializedName': 'content-type',
             }
           };
           customSchema.type = SchemaType.String;
           customSchema.apiVersions = operation.apiVersions;
           customSchema.protocol = new Protocols();
-          let contentTypeParam = new NewHttpOperationParameter("contentType", "Content type header for stream content types", customSchema);
+          const contentTypeParam = new NewHttpOperationParameter('contentType', 'Content type header for stream content types', customSchema);
           contentTypeParam.clientDefaultValue = 'application/octet-stream';
           contentTypeParam.implementation = ImplementationLocation.Client;
           contentTypeParam.required = false;
@@ -210,7 +209,7 @@ export class OperationMethod extends Method {
     }
 
     for (const response of [...values(this.operation.responses), ...values(this.operation.exceptions)]) {
-      const responseType = (<BinaryResponse>response).binary ? new Binary(new BinarySchema(""), true) : ((<SchemaResponse>response).schema ? state.project.modelsNamespace.NewResolveTypeDeclaration(<NewSchema>((<SchemaResponse>response).schema), true, state) : null);
+      const responseType = (<BinaryResponse>response).binary ? new Binary(new BinarySchema(''), true) : ((<SchemaResponse>response).schema ? state.project.modelsNamespace.NewResolveTypeDeclaration(<NewSchema>((<SchemaResponse>response).schema), true, state) : null);
       const headerType = response.language.default.headerSchema ? state.project.modelsNamespace.NewResolveTypeDeclaration(<NewSchema>response.language.default.headerSchema, true, state) : null;
       const newCallbackParameter = new CallbackParameter(response.language.csharp?.name || '', responseType, headerType, this.state, { description: response.language.csharp?.description });
       this.addParameter(newCallbackParameter);
@@ -280,7 +279,7 @@ export class OperationMethod extends Method {
         yield '// verify that Identity format is an exact match for uri';
         yield EOL;
 
-        const match = Local('_match', `${System.Text.RegularExpressions.Regex.new(rx, "global::System.Text.RegularExpressions.RegexOptions.IgnoreCase").value}.Match(${identity.value})`);
+        const match = Local('_match', `${System.Text.RegularExpressions.Regex.new(rx, 'global::System.Text.RegularExpressions.RegexOptions.IgnoreCase').value}.Match(${identity.value})`);
         yield match.declarationStatement;
         yield If(`!${match}.Success`, `throw new global::System.Exception("Invalid identity for URI '${path}'");`);
         yield EOL;
@@ -313,7 +312,7 @@ export class OperationMethod extends Method {
       yield urlV.declarationStatement;
       const method = $this.operation.requests ? $this.operation.requests[0].protocol.http?.method : '';
       yield `var request =  ${System.Net.Http.HttpRequestMessage.new(`${ClientRuntime.fullName}.Method.${method.capitalize()}, ${urlV.value}`)};`;
-      yield eventListener.signal(ClientRuntime.Events.RequestCreated, `request.RequestUri.PathAndQuery`);
+      yield eventListener.signal(ClientRuntime.Events.RequestCreated, 'request.RequestUri.PathAndQuery');
       yield EOL;
 
       if (length(headerParams) > 0) {
@@ -330,26 +329,35 @@ export class OperationMethod extends Method {
       yield eventListener.signal(ClientRuntime.Events.HeaderParametersAdded);
       yield EOL;
       yield '// add custom headers if any';
-      yield `if (headers != null && headers.Count > 0) {`;
-      yield `    foreach (var header in headers.Keys) {`;
-      yield `        request.Headers.Add(header.ToString(), headers[header].ToString());`;
-      yield `    }`;
-      yield `}`;
+      yield 'if (headers != null && headers.Count > 0) {';
+      yield '    foreach (var header in headers.Keys) {';
+      yield '        request.Headers.Add(header.ToString(), headers[header].ToString());';
+      yield '    }';
+      yield '}';
+      yield EOL;
+
+      yield 'string cleanedBody = "@{}";';
+      yield 'if (body != null) {';
+      yield '    cleanedBody = body.ToJson(null).ToString();';
+      yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+      yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
+      yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
+      yield '}';
       yield EOL;
 
       if (bp) {
 
         if (bp.typeDeclaration.schema.type === 'binary') {
-          yield `// get file extension from stream`
-          yield `System.IO.FileStream fileStream = body as System.IO.FileStream;`
-          yield `string fileExtension = System.IO.Path.GetExtension(fileStream.Name);`
+          yield '// get file extension from stream';
+          yield 'System.IO.FileStream fileStream = body as System.IO.FileStream;';
+          yield 'string fileExtension = System.IO.Path.GetExtension(fileStream.Name);';
           yield EOL;
-          yield `// get mime type from helper`
-          yield `string mimeType = Microsoft.Graph.PowerShell.MimeTypes.Helpers.MimeTypesHelper.GetContentType(fileExtension);`
+          yield '// get mime type from helper';
+          yield 'string mimeType = Microsoft.Graph.PowerShell.MimeTypes.Helpers.MimeTypesHelper.GetContentType(fileExtension);';
           yield EOL;
           yield '// set body content';
-          yield `request.Content = new System.Net.Http.StreamContent(body);`;
-          yield `request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(!string.IsNullOrEmpty(contentType)? contentType : mimeType);`;
+          yield 'request.Content = new System.Net.Http.StreamContent(body);';
+          yield 'request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(!string.IsNullOrEmpty(contentType)? contentType : mimeType);';
         } else {
           yield '// set body content';
           yield `request.Content = ${bp.serializeToContent(bp.mediaType, ClientRuntime.SerializationMode.None)};`;
@@ -421,11 +429,11 @@ export class CallMethod extends Method {
 
           // add response handlers
           yield Switch(`${response}.StatusCode`, function* () {
-            var responses = [...values(opMethod.operation.responses), ...values(opMethod.operation.exceptions)].sort(function (a, b) { return (<string>(a.protocol.http?.statusCodes[0])).localeCompare(<string>(b.protocol.http?.statusCodes[0])) });
+            const responses = [...values(opMethod.operation.responses), ...values(opMethod.operation.exceptions)].sort(function (a, b) { return (<string>(a.protocol.http?.statusCodes[0])).localeCompare(<string>(b.protocol.http?.statusCodes[0])); });
             for (const resp of responses) {
               if (resp.protocol.http?.statusCodes[0] !== 'default') {
                 const responseCode = resp.protocol.http?.statusCodes[0];
-                var leadNum = parseInt(responseCode[0]);
+                const leadNum = parseInt(responseCode[0]);
                 // will use enum when it can, fall back to casting int when it can't
                 yield Case(System.Net.HttpStatusCode[responseCode] ? System.Net.HttpStatusCode[responseCode].value : `${System.Net.HttpStatusCode.declaration} n when((int)n >= ${leadNum * 100} && (int)n < ${leadNum * 100 + 100})`, $this.responsesEmitter($this, opMethod, [resp], eventListener));
               } else {
