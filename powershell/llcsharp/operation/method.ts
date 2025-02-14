@@ -336,14 +336,16 @@ export class OperationMethod extends Method {
       yield '}';
       yield EOL;
 
-      yield 'string cleanedBody = "@{}";';
-      yield 'if (body != null) {';
-      yield '    cleanedBody = body.ToJson(null).ToString();';
-      yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
-      yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
-      yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
-      yield '}';
-      yield EOL;
+      if (method.toLowerCase() === 'post' || method.toLowerCase() === 'put' || method.toLowerCase() === 'patch') {
+        yield 'string cleanedBody = "@{}";';
+        yield 'if (body != null) {';
+        yield '    cleanedBody = body.ToJson(null).ToString();';
+        yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+        yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
+        yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
+        yield '}';
+        yield EOL;
+      }
 
       if (bp) {
 
