@@ -351,7 +351,7 @@ export class OperationMethod extends Method {
           yield 'request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(!string.IsNullOrEmpty(contentType)? contentType : mimeType);';
         } else {
           // This block is only supposed to be applied on requests that have a body parameter
-          if (method.capitalize() === 'POST' || method.capitalize() === 'PUT' || method.capitalize() === 'PATCH') {
+          if (method.capitalize() === 'Post' || method.capitalize() === 'Put' || method.capitalize() === 'Patch') {
             yield 'string cleanedBody = "@{}";';
             yield 'if (body != null) {';
             yield '    cleanedBody = body.ToJson(null).ToString();';
