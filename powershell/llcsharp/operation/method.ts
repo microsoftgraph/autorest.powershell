@@ -350,14 +350,23 @@ export class OperationMethod extends Method {
           yield 'request.Content = new System.Net.Http.StreamContent(body);';
           yield 'request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(!string.IsNullOrEmpty(contentType)? contentType : mimeType);';
         } else {
-          // This block is only supposed to be applied on requests that have a body parameter
-          if (method.capitalize() === 'Post' || method.capitalize() === 'Put' || method.capitalize() === 'Patch') {
+
+          if (bp.typeDeclaration.schema.type === 'object' && (method.capitalize() === 'Post' || method.capitalize() === 'Put' || method.capitalize() === 'Patch')) {
             yield 'string cleanedBody = "@{}";';
             yield 'if (body != null) {';
             yield '    cleanedBody = body.ToJson(null).ToString();';
             yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
             yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
             yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
+            yield '}';
+            yield EOL;
+          } else if (bp.typeDeclaration.schema.type === 'array' && (method.capitalize() === 'Post' || method.capitalize() === 'Put' || method.capitalize() === 'Patch')) {
+            yield 'string cleanedBody = "@[{}]";';
+            yield 'if (body != null) {';
+            yield '    cleanedBody = new Microsoft.Graph.PowerShell.Runtime.Json.XNodeArray(global::System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(body, (__x) => __x?.ToJson(null, Microsoft.Graph.PowerShell.Runtime.SerializationMode.None)))).ToString();';
+            yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+            yield '    Newtonsoft.Json.Linq.JArray jsonArray = Newtonsoft.Json.Linq.JArray.Parse(cleanedBody);';
+            yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonArray);';
             yield '}';
             yield EOL;
           }
