@@ -358,7 +358,7 @@ export class OperationMethod extends Method {
             if (apiVersion === 'v1.0') {
               yield '    cleanedBody = new Microsoft.Graph.PowerShell.Runtime.Json.XNodeArray(global::System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(body, (__x) => __x?.ToJson(null, Microsoft.Graph.PowerShell.Runtime.SerializationMode.None)))).ToString();';
             } else {
-              yield '    cleanedBody = new Microsoft.Graph.PowerShell.Runtime.Json.XNodeArray(global::System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(body, (__x) => __x?.ToJson(null, Microsoft.Graph.Beta.PowerShell.Runtime.SerializationMode.None)))).ToString();';
+              yield '    cleanedBody = new Microsoft.Graph.Beta.PowerShell.Runtime.Json.XNodeArray(global::System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(body, (__x) => __x?.ToJson(null, Microsoft.Graph.Beta.PowerShell.Runtime.SerializationMode.None)))).ToString();';
             }
             yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
             yield '    Newtonsoft.Json.Linq.JArray jsonArray = Newtonsoft.Json.Linq.JArray.Parse(cleanedBody);';
