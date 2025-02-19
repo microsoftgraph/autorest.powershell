@@ -357,12 +357,15 @@ export class OperationMethod extends Method {
             yield 'if (body != null) {';
             if (apiVersion === 'v1.0') {
               yield '    cleanedBody = new Microsoft.Graph.PowerShell.Runtime.Json.XNodeArray(global::System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(body, (__x) => __x?.ToJson(null, Microsoft.Graph.PowerShell.Runtime.SerializationMode.None)))).ToString();';
+              yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+              yield '    Newtonsoft.Json.Linq.JArray jsonArray = Newtonsoft.Json.Linq.JArray.Parse(cleanedBody);';
+              yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonArray);';
             } else {
               yield '    cleanedBody = new Microsoft.Graph.Beta.PowerShell.Runtime.Json.XNodeArray(global::System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(body, (__x) => __x?.ToJson(null, Microsoft.Graph.Beta.PowerShell.Runtime.SerializationMode.None)))).ToString();';
+              yield '    cleanedBody = Microsoft.Graph.Beta.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+              yield '    Newtonsoft.Json.Linq.JArray jsonArray = Newtonsoft.Json.Linq.JArray.Parse(cleanedBody);';
+              yield '    cleanedBody = Microsoft.Graph.Beta.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonArray);';
             }
-            yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
-            yield '    Newtonsoft.Json.Linq.JArray jsonArray = Newtonsoft.Json.Linq.JArray.Parse(cleanedBody);';
-            yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonArray);';
             yield '}';
             yield EOL;
           } else {
@@ -370,9 +373,15 @@ export class OperationMethod extends Method {
               yield 'string cleanedBody = "@{}";';
               yield 'if (body != null) {';
               yield '    cleanedBody = body.ToJson(null).ToString();';
-              yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
-              yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
-              yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
+              if (apiVersion === 'v1.0') {
+                yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+                yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
+                yield '    cleanedBody = Microsoft.Graph.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
+              } else {
+                yield '    cleanedBody = Microsoft.Graph.Beta.PowerShell.JsonUtilities.JsonExtensions.ReplaceAndRemoveSlashes(cleanedBody);';
+                yield '    Newtonsoft.Json.Linq.JObject jsonObject = Newtonsoft.Json.Linq.JObject.Parse(cleanedBody);';
+                yield '    cleanedBody = Microsoft.Graph.Beta.PowerShell.JsonUtilities.JsonExtensions.RemoveDefaultNullProperties(jsonObject);';
+              }
               yield '}';
               yield EOL;
             }
