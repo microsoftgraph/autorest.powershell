@@ -60,8 +60,8 @@ dependencies:
     specifier: ~8.57.0
     version: 8.57.1
   js-yaml:
-    specifier: 3.13.1
-    version: 3.13.1
+    specifier: 3.14.2
+    version: 3.14.2
   mocha:
     specifier: 10.7.3
     version: 10.7.3
@@ -90,7 +90,7 @@ packages:
     deprecated: 'Warning: This package has been renamed to ''@autorest/extension-base'', please use ''@autorest/extension-base'' instead.'
     dependencies:
       '@azure-tools/codegen': 2.5.294
-      js-yaml: 3.13.1
+      js-yaml: 3.14.2
       vscode-jsonrpc: 3.6.2
     dev: false
 
@@ -107,7 +107,7 @@ packages:
     dependencies:
       '@azure-tools/async-io': 3.0.254
       '@azure-tools/linq': 3.1.263
-      js-yaml: 4.0.0
+      js-yaml: 4.1.1
       semver: 5.7.2
     dev: false
 
@@ -966,19 +966,12 @@ packages:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
     dev: false
 
-  /js-yaml@3.13.1:
-    resolution: {integrity: sha512-YfbcO7jXDdyj0DGxYVSlSeQNHbD7XPWvrVWeVUujrQEoZzWJIRrCPoyk6kL6IAjAG2IolMK4T0hNUe0HOUs5Jw==}
+  /js-yaml@3.14.2:
+    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
     hasBin: true
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
-    dev: false
-
-  /js-yaml@4.0.0:
-    resolution: {integrity: sha512-pqon0s+4ScYUvX30wxQi3PogGFAlUyH0awepWvwkj4jD4v+ova3RiYw8bmA6x2rDrEaj8i/oWKoRxpVNW+Re8Q==}
-    hasBin: true
-    dependencies:
-      argparse: 2.0.1
     dev: false
 
   /js-yaml@4.1.1:
@@ -1441,7 +1434,7 @@ packages:
     dev: false
 
   file:projects/powershell.tgz:
-    resolution: {integrity: sha512-vscLsY1UCMRPoUmJwTqlza09kF9luS9IjguT8eezrqtznOnFIgur6onrSAoE8gT6MdD4Ho07O14BjFZn6rQSpQ==, tarball: file:projects/powershell.tgz}
+    resolution: {integrity: sha512-7Tz7nmUFfqun+VDaZo3rmiATw5QUcm0Gcdl2BCipQMBdpw3gWfCzo+GKqyJEfFap2vlTwnMmIgaskXapnJYKYA==, tarball: file:projects/powershell.tgz}
     name: '@rush-temp/powershell'
     version: 0.0.0
     dependencies:
@@ -1462,7 +1455,7 @@ packages:
       '@typescript-eslint/parser': 5.62.0(eslint@8.57.1)(typescript@3.9.10)
       autorest: 3.0.6339
       eslint: 8.57.1
-      js-yaml: 3.13.1
+      js-yaml: 3.14.2
       mocha: 10.7.3
       source-map-support: 0.5.13
       typescript: 3.9.10
