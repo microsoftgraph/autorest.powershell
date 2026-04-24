@@ -76,7 +76,7 @@ namespace Microsoft.Rest.ClientRuntime.PowerShell
 ${$project.pwshCommentHeaderForCsharp}
 # ----------------------------------------------------------------------------------
 ");
-                HashSet<string> LicenseSet = new HashSet<string>();
+                var proxyDefinitions = new Dictionary<string, StringBuilder>();
                 foreach (var variantGroup in variantGroups)
                 {
                     var parameterGroups = variantGroup.ParameterGroups.ToList();
@@ -132,15 +132,18 @@ ${$project.pwshCommentHeaderForCsharp}
                     sb.Append($"}}{Environment.NewLine}");
 
                     Directory.CreateDirectory(variantGroup.OutputFolder);
-                    File.WriteAllText(variantGroup.FilePath, license.ToString());
-                    File.AppendAllText(variantGroup.FilePath, sb.ToString());
-                    if (!LicenseSet.Contains(Path.Combine(variantGroup.OutputFolder, "ProxyCmdletDefinitions.ps1")))
+                    File.WriteAllText(variantGroup.FilePath, license.ToString() + sb.ToString());
+                    var proxyPath = Path.Combine(variantGroup.OutputFolder, "ProxyCmdletDefinitions.ps1");
+                    if (!proxyDefinitions.ContainsKey(proxyPath))
                     {
-                        // only add license in the header
-                        File.AppendAllText(Path.Combine(variantGroup.OutputFolder, "ProxyCmdletDefinitions.ps1"), license.ToString());
-                        LicenseSet.Add(Path.Combine(variantGroup.OutputFolder, "ProxyCmdletDefinitions.ps1"));
+                        proxyDefinitions[proxyPath] = new StringBuilder(license.ToString());
                     }
-                    File.AppendAllText(Path.Combine(variantGroup.OutputFolder, "ProxyCmdletDefinitions.ps1"), sb.ToString());
+                    proxyDefinitions[proxyPath].Append(sb);
+                }
+
+                foreach (var entry in proxyDefinitions)
+                {
+                    File.WriteAllText(entry.Key, entry.Value.ToString());
                 }
 
                 if (!ExcludeDocs)
