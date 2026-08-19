@@ -65,8 +65,8 @@ importers:
         specifier: ~8.57.0
         version: 8.57.1
       js-yaml:
-        specifier: 3.14.2
-        version: 3.14.2
+        specifier: 3.15.0
+        version: 3.15.0
       mocha:
         specifier: 10.7.3
         version: 10.7.3
@@ -156,7 +156,7 @@ packages:
     engines: {node: '>= 8'}
 
   '@rush-temp/powershell@file:projects/powershell.tgz':
-    resolution: {integrity: sha512-7Tz7nmUFfqun+VDaZo3rmiATw5QUcm0Gcdl2BCipQMBdpw3gWfCzo+GKqyJEfFap2vlTwnMmIgaskXapnJYKYA==, tarball: file:projects/powershell.tgz}
+    resolution: {integrity: sha512-39t8/YjzdUbmpS5TR6d4HgGvN1V8FjK2AbmsXkVSJwZM/jkRG5ZF8UbxFoGIgRjeEA92piO8QR3cOa2OzTiMQA==, tarball: file:projects/powershell.tgz}
     version: 0.0.0
 
   '@testdeck/core@0.2.2':
@@ -575,8 +575,8 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  js-yaml@3.14.2:
-    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
+  js-yaml@3.15.0:
+    resolution: {integrity: sha512-ttBQIIQPDeLjpPOohtUdXuXUVoA2uIB6fEH9HyJ7234s5mBJ5wTx20njxplLZQgLaOfpmPQA7X2t5AX6tIPbog==}
     hasBin: true
 
   js-yaml@4.1.1:
@@ -872,7 +872,7 @@ snapshots:
   '@azure-tools/autorest-extension-base@3.1.267':
     dependencies:
       '@azure-tools/codegen': 2.5.294
-      js-yaml: 3.14.2
+      js-yaml: 3.15.0
       vscode-jsonrpc: 3.6.2
 
   '@azure-tools/codegen-csharp@3.0.264':
@@ -969,7 +969,7 @@ snapshots:
       '@typescript-eslint/parser': 5.62.0(eslint@8.57.1)(typescript@3.9.10)
       autorest: 3.0.6339
       eslint: 8.57.1
-      js-yaml: 3.14.2
+      js-yaml: 3.15.0
       mocha: 10.7.3
       source-map-support: 0.5.13
       typescript: 3.9.10
@@ -1414,7 +1414,7 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  js-yaml@3.14.2:
+  js-yaml@3.15.0:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
