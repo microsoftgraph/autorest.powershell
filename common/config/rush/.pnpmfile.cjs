@@ -45,10 +45,10 @@ function readPackage(pkg, context) {
       pkg.dependencies["js-yaml"] = "3.15.1";
       context.log(`Overriding js-yaml from ${ver} to 3.15.1 in ${pkg.name}`);
     }
-    // Override js-yaml 4.x < 4.1.1
-    if (/^[~^]?4\./.test(ver) && ver !== "4.1.1" && ver !== "^4.1.0") {
-      pkg.dependencies["js-yaml"] = "4.1.1";
-      context.log(`Overriding js-yaml from ${ver} to 4.1.1 in ${pkg.name}`);
+    // Override js-yaml 4.x < 4.3.2
+    if (/^[~^]?4\./.test(ver) && ver !== "4.3.2" && ver !== "^4.3.2") {
+      pkg.dependencies["js-yaml"] = "4.3.2";
+      context.log(`Overriding js-yaml from ${ver} to 4.3.2 in ${pkg.name}`);
     }
   }
   return pkg;
