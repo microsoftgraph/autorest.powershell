@@ -17,8 +17,8 @@ importers:
         specifier: ~3.1.0
         version: 3.1.267
       '@azure-tools/codegen':
-        specifier: ~2.5.276
-        version: 2.5.294
+        specifier: 2.7.0
+        version: 2.7.0
       '@azure-tools/codegen-csharp':
         specifier: ~3.0.0
         version: 3.0.264
@@ -67,6 +67,9 @@ importers:
       js-yaml:
         specifier: 3.15.1
         version: 3.15.1
+      js-yaml-v4:
+        specifier: npm:js-yaml@4.3.2
+        version: js-yaml@4.3.2
       mocha:
         specifier: 10.7.3
         version: 10.7.3
@@ -96,6 +99,10 @@ packages:
   '@azure-tools/codegen@2.5.294':
     resolution: {integrity: sha512-WOplS0oiNoZ0jWKkAdUJXAuQB8UzbPsIeJin7LnnzJQseGeU05zQLOUjwi63neAFyW6ninyVjXKaIl+GKOQ5mQ==}
     engines: {node: '>=10.13.0'}
+
+  '@azure-tools/codegen@2.7.0':
+    resolution: {integrity: sha1-zXapHwgMkWbjy2F1G0qY3MrjXBQ=}
+    engines: {node: '>=12.0.0'}
 
   '@azure-tools/codemodel-v3@3.1.266':
     resolution: {integrity: sha512-walYu+XVRjUDr10F6owVI7p7vJ/X83LNMXCU4Bs2EKCsHyqm4vbfHbesOQhpbUjmdAVo3ASrdO/0p1/iGVB9zA==}
@@ -883,6 +890,12 @@ snapshots:
       js-yaml: 4.3.2
       semver: 5.7.2
 
+  '@azure-tools/codegen@2.7.0':
+    dependencies:
+      '@azure-tools/async-io': 3.0.254
+      js-yaml: 4.3.2
+      semver: 5.7.2
+
   '@azure-tools/codemodel-v3@3.1.266':
     dependencies:
       '@azure-tools/autorest-extension-base': 3.1.267
@@ -950,7 +963,7 @@ snapshots:
     dependencies:
       '@azure-tools/async-io': 3.0.254
       '@azure-tools/autorest-extension-base': 3.1.267
-      '@azure-tools/codegen': 2.5.294
+      '@azure-tools/codegen': 2.7.0
       '@azure-tools/codegen-csharp': 3.0.264
       '@azure-tools/codemodel': 4.13.349
       '@azure-tools/codemodel-v3': 3.1.266
@@ -966,6 +979,7 @@ snapshots:
       autorest: 3.0.6339
       eslint: 8.57.1
       js-yaml: 3.15.1
+      js-yaml-v4: js-yaml@4.3.2
       mocha: 10.7.3
       source-map-support: 0.5.13
       typescript: 3.9.10

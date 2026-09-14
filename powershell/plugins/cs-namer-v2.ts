@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { codeModelSchema, SchemaResponse, CodeModel, Schema, ObjectSchema, GroupSchema, isObjectSchema, SchemaType, GroupProperty, ParameterLocation, Operation, Parameter, VirtualParameter, getAllProperties, ImplementationLocation, OperationGroup, Request, SchemaContext, StringSchema, ChoiceSchema, SealedChoiceSchema } from '@azure-tools/codemodel';
-import { camelCase, deconstruct, excludeXDash, fixLeadingNumber, pascalCase, lowest, maximum, minimum, getPascalIdentifier, serialize } from '@azure-tools/codegen';
+import { camelCase, deconstruct, fixLeadingNumber, pascalCase, lowest, maximum, minimum, getPascalIdentifier, serialize } from '@azure-tools/codegen';
 import { items, values, keys, Dictionary, length } from '@azure-tools/linq';
 import { System } from '@azure-tools/codegen-csharp';
 
@@ -265,4 +265,3 @@ export async function csnamerV2(service: Host) {
   const state = await new ModelState<PwshModel>(service).init();
   await service.WriteFile('code-model-v4-csnamer-v2.yaml', serialize(await nameStuffRight(state)), undefined, 'code-model-v4');
 }
-
