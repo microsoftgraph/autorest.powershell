@@ -4,8 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Channel, Host, JsonPath, Mapping, RawSourceMap, Message } from '@azure-tools/autorest-extension-base';
-import { safeEval, deserialize, Initializer, DeepPartial } from '@azure-tools/codegen';
+import { safeEval, Initializer, DeepPartial } from '@azure-tools/codegen';
 import { Dictionary } from '@azure-tools/linq';
+const { load } = require('js-yaml-v4');
 
 export class ModelState<T extends Dictionary<any>> extends Initializer {
   public model!: T;
@@ -118,7 +119,10 @@ export class ModelState<T extends Dictionary<any>> extends Initializer {
     }
     return {
       filename,
-      model: deserialize<T>(await service.ReadFile(filename), filename)
+      model: load(await service.ReadFile(filename), {
+        filename,
+        maxDepth: 1000
+      }) as T
     };
   }
 
